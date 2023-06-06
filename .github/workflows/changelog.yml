@@ -1,0 +1,32 @@
+name: Update Changelog
+on:
+  schedule:
+    - cron: '0 0 * * *' # This will run the action daily at midnight
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: pip install PyGithub
+
+      - name: Update Changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python .github/scripts/update_changelog.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add CHANGELOG.md
+          git commit -m "Update Changelog" || true
+          git push
